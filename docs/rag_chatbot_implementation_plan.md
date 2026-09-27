@@ -3,6 +3,8 @@
 **Allegheny Housing Match Map · municipal decision-support prototype**  
 *Future architecture; not part of the current fixture-data MVP.*
 
+**This branch (`feature/jani-homewood-acs`):** Ask the map stays the **Grounded preview**—deterministic lexical retrieval, templates, and citations. Need for joined Pittsburgh hoods is ACS 2019–23; Fit and Allowed remain fixtures. Do not connect an LLM in this slice. A later hosted RAG step may generate only from the selected place snapshot plus already-cited excerpts. It must not invent numbers, interpret Title 9, or act as a zoning lawyer.
+
 ## 1. Purpose and boundaries
 
 The future chatbot should help a municipal planner, nonprofit, or community partner understand what the map shows, why it shows it, which sources support it, and what must still be verified. It is an evidence-navigation layer over the deterministic housing model, not a second scoring engine and not a substitute for a zoning officer, attorney, engineer, or community process.

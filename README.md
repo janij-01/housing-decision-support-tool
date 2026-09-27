@@ -31,7 +31,9 @@ npm run build
 
 ## Current MVP status
 
-The first local MVP uses **ACS 2019–23 Need** (UCSUR / WPRDC neighborhood profiles) for Homewood and other in-city places that match a WPRDC hood name. Fit, Allowed, match colors, and outside-city scores remain **illustrative fixtures**. Homewood North and Homewood West share the UCSUR “Homewood North - Homewood West” group. Wilkinsburg hex fills are still placeholders. The next data work replaces Fit/Allowed fixtures with county parcels and a human-verified Pittsburgh zoning matrix.
+The first local MVP uses **ACS 2019–23 Need** (UCSUR / WPRDC neighborhood profiles) for Homewood and other in-city places that match a WPRDC hood name. Fit, Allowed, match colors, and outside-city scores remain **illustrative fixtures**. Homewood North and Homewood West share the UCSUR “Homewood North - Homewood West” group; the place list can open either hood. Wilkinsburg hex fills are still placeholders. The next data work replaces Fit/Allowed fixtures with county parcels and a human-verified Pittsburgh zoning matrix.
+
+Demo path on `feature/jani-homewood-acs`: open the app (defaults to Homewood South, Need view, ADU), switch ADU vs duplex, print the screening brief. Zoning labels stay fixture.
 
 The interface includes a **Grounded Preview** of the planned RAG planning copilot. Today it uses deterministic lexical retrieval, templates, and citations over a small local corpus—no LLM, embeddings, or vector database. The future hosted RAG architecture is documented separately and will preserve the same citation and refusal contract.
 

@@ -27,6 +27,7 @@ export interface DecisionRibbonProps {
   fit: DecisionBand
   allowed: DecisionAllowedStatus
   action: DecisionActionStatus
+  needNote?: string
   className?: string
 }
 
@@ -151,6 +152,7 @@ export function DecisionRibbon({
   fit,
   allowed,
   action,
+  needNote,
   className,
 }: DecisionRibbonProps) {
   const headingId = useId()
@@ -162,7 +164,7 @@ export function DecisionRibbon({
       label: 'Need',
       question: 'Is there a local gap?',
       value: BAND_LABELS[need],
-      explanation: NEED_EXPLANATIONS[need],
+      explanation: needNote ?? NEED_EXPLANATIONS[need],
       tone: bandTone(need),
     },
     {

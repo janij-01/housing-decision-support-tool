@@ -33,7 +33,8 @@ export function Legend({ mode }: { mode: MapMode }) {
         </div>
       ))}
       <p className="legend-note">
-        Boundaries change as you zoom: neighborhoods → Census block groups.
+        In-city fills follow WPRDC neighborhood names. Outside-city shapes are
+        H3 placeholders, not municipal boundaries.
       </p>
     </aside>
   )

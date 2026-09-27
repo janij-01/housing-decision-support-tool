@@ -27,7 +27,7 @@ interface MapViewProps<T extends MapDatum> {
   getStatus: (cell: T) => string
   getNeed: (cell: T) => string
   getTooltip: (cell: T) => string
-  onSelect: (cell: T) => void
+  onSelect: (cell: T, picked?: { hood?: string }) => void
 }
 
 interface NeighborhoodProperties {
@@ -94,7 +94,7 @@ export function MapView<T extends MapDatum>({
     return {
       latitude,
       longitude,
-      zoom: 11.2,
+      zoom: 12.35,
       pitch: is3d ? 38 : 0,
       bearing: 0,
     }
@@ -196,20 +196,23 @@ export function MapView<T extends MapDatum>({
         )
         return hasScore ? [52, 67, 59, 190] : [102, 113, 106, 95]
       },
-      getLineWidth: 1,
+      getLineWidth: (feature) => {
+        const hood = (feature.properties.hood ?? '').toLowerCase()
+        return hood === selected.name.toLowerCase() ? 3.2 : 1
+      },
       lineWidthUnits: 'pixels',
       onClick: ({ object }: PickingInfo) => {
         const feature = object as
           | { properties?: NeighborhoodProperties }
           | undefined
-        const cell = cellsByNeighborhood.get(
-          (feature?.properties?.hood ?? '').toLowerCase(),
-        )
-        if (cell) onSelect(cell)
+        const hood = feature?.properties?.hood
+        const cell = cellsByNeighborhood.get((hood ?? '').toLowerCase())
+        if (cell) onSelect(cell, { hood })
       },
       updateTriggers: {
         getFillColor: [mode, getStatus, getNeed],
         getLineColor: [cellsByNeighborhood],
+        getLineWidth: [selected.name],
       },
     }),
     new PolygonLayer<GeoJsonFeature<SummaryAreaProperties>>({
@@ -288,7 +291,7 @@ export function MapView<T extends MapDatum>({
     }
     if (properties.parentH3s) {
       return {
-        text: `${properties.label ?? 'Planning area'}\n${areaSummary(properties.parentH3s).label}`,
+        text: `${properties.label ?? 'Planning area'} (outside-city placeholder)\n${areaSummary(properties.parentH3s).label}`,
       }
     }
     return null
@@ -316,7 +319,7 @@ export function MapView<T extends MapDatum>({
         <strong>{scaleLabel}</strong>
         <span>
           {viewState.zoom < NEIGHBORHOOD_MAX_ZOOM
-            ? 'Zoom in for planning areas'
+            ? 'Neighborhood fills. Outside-city shapes are H3 placeholders.'
             : 'Shaded by tract score'}
         </span>
       </div>

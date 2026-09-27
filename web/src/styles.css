@@ -228,7 +228,7 @@ input:focus-visible {
 
 .toolbar {
   display: grid;
-  grid-template-columns: minmax(220px, 1.3fr) minmax(190px, 1fr) auto auto;
+  grid-template-columns: minmax(220px, 1.3fr) minmax(190px, 1fr) auto auto auto;
   gap: 10px;
   max-width: 1500px;
   margin: 0 auto 12px;
@@ -1114,7 +1114,9 @@ input:focus-visible {
 
 @media print {
   .topbar-actions,
+  .toolbar,
   .map-panel,
+  .map-legend,
   .copilot-button,
   .copilot-backdrop,
   .scenario-builder,

@@ -48,6 +48,7 @@ export function PlanningCopilot({
 
   const placeName =
     selectedHex?.neighborhood ?? selectedHex?.muni ?? 'No map area selected'
+  const hasAcsNeed = Boolean(selectedHex?.observedNeed)
 
   return (
     <section
@@ -79,12 +80,23 @@ export function PlanningCopilot({
       </p>
 
       <aside className="planning-copilot__fixture-note" aria-label="Data limitation">
-        <strong>Fixture limitation</strong>
+        <strong>
+          {!selectedHex
+            ? 'Select a place first'
+            : hasAcsNeed
+              ? 'Need is ACS; Fit/Allowed are fixtures'
+              : 'Fixture limitation'}
+        </strong>
         <span>
-          Current values are illustrative examples—not authoritative findings
-          or a basis for planning and zoning decisions.
+          {!selectedHex
+            ? 'Answers stay empty until a map area is selected. The drawer only retrieves local notes.'
+            : hasAcsNeed
+              ? `${selectedHex.observedNeed?.vintage} for this place. Fit parcel counts and Allowed zoning labels stay illustrative. This drawer only retrieves local notes—it will not invent numbers or act as a zoning lawyer.`
+              : 'This place has no ACS neighborhood join. Need, Fit, and Allowed here are illustrative examples, not findings.'}
         </span>
-        <span className="planning-copilot__source-tag">Fixture data notice</span>
+        <span className="planning-copilot__source-tag">
+          {hasAcsNeed ? 'ACS Need · fixture Fit/Allowed' : 'Fixture data notice'}
+        </span>
       </aside>
 
       <div className="planning-copilot__context" aria-label="Current map context">
@@ -100,8 +112,8 @@ export function PlanningCopilot({
           <span aria-hidden="true">⌖</span>
           <h3>Select a place to begin</h3>
           <p>
-            Choose a map area to ground questions in its illustrative Need, Fit,
-            Allowed, and risk values.
+            Choose a map area to ground questions in its Need, Fit, Allowed,
+            and risk values. Need is ACS where a WPRDC hood name joins.
           </p>
         </div>
       ) : (
@@ -203,7 +215,7 @@ export function PlanningCopilot({
               <span aria-hidden="true">⌁</span>
               <p>
                 Ask a question or choose a prompt. Answers quote only the local
-                corpus and selected fixture.
+                corpus and the selected place snapshot.
               </p>
             </div>
           )}

@@ -128,7 +128,9 @@ export function ScenarioBuilder({
           <p className="eyebrow">Compare approaches</p>
           <h2 id="scenario-heading">40 new homes in {placeName}</h2>
           <p className="muted">
-            Facts stay fixed. Your values change how scenarios rank.
+            Facts stay fixed. Your values change how scenarios rank. These
+            40-home mixes are illustrative—they are not ACS or parcel outputs
+            for this place.
           </p>
         </div>
         <span className="provenance user-value">Your values</span>

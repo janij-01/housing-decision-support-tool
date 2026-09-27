@@ -38,6 +38,13 @@ const TYPE_LABELS: Record<TypeId, string> = {
   detached_sf: 'Detached single-family',
 }
 
+const DEMO_TYPE_CHIPS = [
+  { value: 'adu', label: 'ADU' },
+  { value: 'duplex_triplex', label: 'Duplex / triplex' },
+]
+
+const DEFAULT_PLACE = 'Homewood South'
+
 const STATUS_LABELS: Record<string, string> = {
   ready_match: 'Ready match',
   needs_approval: 'Needs approval',
@@ -53,6 +60,46 @@ type ViewCell = HexRecord & { name: string }
 
 function cellName(cell: HexRecord) {
   return cell.neighborhood ?? cell.muni
+}
+
+function findCellByPlace(cells: ViewCell[], key: string): ViewCell | undefined {
+  const needle = key.toLowerCase()
+  return (
+    cells.find((cell) => cell.h3 === key) ??
+    cells.find((cell) => cell.name.toLowerCase() === needle) ??
+    cells.find((cell) =>
+      cell.hoodAliases?.some((alias) => alias.toLowerCase() === needle),
+    )
+  )
+}
+
+function displayPlaceName(key: string, cell: ViewCell): string {
+  const needle = key.toLowerCase()
+  if (cell.name.toLowerCase() === needle) return cell.name
+  const alias = cell.hoodAliases?.find((item) => item.toLowerCase() === needle)
+  return alias ?? cell.name
+}
+
+function placeOptions(cells: ViewCell[]) {
+  const homewood: { value: string; label: string }[] = []
+  const rest: { value: string; label: string }[] = []
+
+  for (const cell of cells) {
+    const acs = Boolean(cell.observedNeed)
+    const bucket = cell.name.startsWith('Homewood') ? homewood : rest
+    bucket.push({
+      value: cell.neighborhood ?? cell.h3,
+      label: `${cell.name} · ${cell.muni}${acs ? ' · ACS Need' : ' · fixture Need'}`,
+    })
+    for (const alias of cell.hoodAliases ?? []) {
+      bucket.push({
+        value: alias,
+        label: `${alias} · ${cell.muni} · ACS Need (grouped with ${cell.name})`,
+      })
+    }
+  }
+
+  return [...homewood, ...rest]
 }
 
 function statusFor(cell: HexRecord, type: TypeId) {
@@ -128,20 +175,20 @@ function App() {
     [],
   )
   const params = useMemo(() => new URLSearchParams(window.location.search), [])
-  const [selectedH3, setSelectedH3] = useState(() => {
+  const [selectedPlace, setSelectedPlace] = useState(() => {
     const requested = params.get('place')
-    return cells.some((cell) => cell.h3 === requested)
-      ? (requested as string)
-      : cells[0].h3
+    return requested && findCellByPlace(cells, requested)
+      ? requested
+      : DEFAULT_PLACE
   })
   const [selectedType, setSelectedType] = useState<TypeId>(() => {
     const requested = params.get('type')
     return TYPE_IDS.includes(requested as TypeId)
       ? (requested as TypeId)
-      : 'duplex_triplex'
+      : 'adu'
   })
   const [mode, setMode] = useState<MapMode>(() =>
-    params.get('view') === 'need' ? 'need' : 'match',
+    params.get('view') === 'match' ? 'match' : 'need',
   )
   const [is3d, setIs3d] = useState(() => params.get('dimension') === '3d')
   const [copied, setCopied] = useState(false)
@@ -156,17 +203,21 @@ function App() {
     speedToBuild: BALANCED_WEIGHTS.speedToBuild * 50,
   })
 
-  const selected =
-    cells.find((cell) => cell.h3 === selectedH3) ?? cells[0]
+  const selectedBase =
+    findCellByPlace(cells, selectedPlace) ?? cells[0]
+  const selected: ViewCell = {
+    ...selectedBase,
+    name: displayPlaceName(selectedPlace, selectedBase),
+  }
 
   useEffect(() => {
     const next = new URLSearchParams()
-    next.set('place', selectedH3)
+    next.set('place', selectedPlace)
     next.set('type', selectedType)
     next.set('view', mode)
     next.set('dimension', is3d ? '3d' : '2d')
     window.history.replaceState(null, '', `${window.location.pathname}?${next}`)
-  }, [is3d, mode, selectedH3, selectedType])
+  }, [is3d, mode, selectedPlace, selectedType])
 
   useEffect(() => {
     if (!copilotOpen) return
@@ -193,9 +244,10 @@ function App() {
     (cell: ViewCell) => {
       const status = statusFor(cell, selectedType)
       const fit = cell.fit[selectedType]
-      return `${TYPE_LABELS[selectedType]}: ${STATUS_LABELS[status]}. Need ${
-        cell.observedNeed ? 'from ACS 2019–23' : 'is illustrative'
-      }. Fit recipe: about ${fit.parcels} parcels, ${fit.homes[0]}–${fit.homes[1]} homes.\nClick to see why.`
+      const needSource = cell.observedNeed
+        ? 'ACS 2019–23'
+        : 'illustrative Need'
+      return `${TYPE_LABELS[selectedType]}: ${STATUS_LABELS[status]}. Need ${cell.need[selectedType]} (${needSource}). ${fit.parcels} illustrative suitable parcels.\nClick to see why.`
     },
     [selectedType],
   )
@@ -292,13 +344,14 @@ function App() {
 
       <main className="workspace">
         <Toolbar
-          places={cells.map((cell) => ({
-            value: cell.h3,
-            label: `${cell.name} · ${cell.muni}`,
-          }))}
-          place={selectedH3}
-          onPlaceChange={(h3) => {
-            setSelectedH3(h3)
+          places={placeOptions(cells)}
+          place={
+            findCellByPlace(cells, selectedPlace)
+              ? selectedPlace
+              : (selected.neighborhood ?? selected.h3)
+          }
+          onPlaceChange={(value) => {
+            setSelectedPlace(value)
             setMapFocusVersion((version) => version + 1)
           }}
           types={TYPE_IDS.map((type) => ({
@@ -307,6 +360,7 @@ function App() {
           }))}
           type={selectedType}
           onTypeChange={(value) => setSelectedType(value as TypeId)}
+          compareTypes={DEMO_TYPE_CHIPS}
           mode={mode}
           onModeChange={setMode}
           is3d={is3d}
@@ -320,6 +374,11 @@ function App() {
           fit={selected.fit[selectedType].band}
           allowed={selected.allowed[selectedType]}
           action={statusFor(selected, selectedType)}
+          needNote={
+            selected.observedNeed
+              ? `${selected.observedNeed.vintage} living-alone and vacancy drive this Need band (${selected.observedNeed.catalogName}).`
+              : undefined
+          }
         />
 
         <div className="primary-layout">
@@ -333,8 +392,10 @@ function App() {
               getStatus={getStatus}
               getNeed={getNeed}
               getTooltip={getTooltip}
-              onSelect={(cell) => {
-                setSelectedH3(cell.h3)
+              onSelect={(cell, picked) => {
+                setSelectedPlace(
+                  picked?.hood ?? cell.neighborhood ?? cell.h3,
+                )
                 setExplanationOpen(true)
               }}
             />
@@ -361,20 +422,19 @@ function App() {
               unknowns={unknowns}
               cell={selected}
             />
+            <ScreeningBrief
+              placeName={selected.name}
+              municipality={selected.muni}
+              typeLabel={TYPE_LABELS[selectedType]}
+              need={selected.need[selectedType]}
+              fit={selected.fit[selectedType].band}
+              allowed={selected.allowed[selectedType]}
+              status={statusFor(selected, selectedType)}
+              hasAcsNeed={Boolean(selected.observedNeed)}
+              catalogName={selected.observedNeed?.catalogName}
+            />
           </aside>
         </div>
-
-        <ScreeningBrief
-          placeName={selected.name}
-          municipality={selected.muni}
-          typeLabel={TYPE_LABELS[selectedType]}
-          need={selected.need[selectedType]}
-          fit={selected.fit[selectedType].band}
-          allowed={selected.allowed[selectedType]}
-          status={statusFor(selected, selectedType)}
-          hasAcsNeed={Boolean(selected.observedNeed)}
-          catalogName={selected.observedNeed?.catalogName}
-        />
 
         <ScenarioBuilder
           placeName={selected.name}
@@ -387,11 +447,11 @@ function App() {
 
         <p className="disclaimer">
           <strong>Decision-support prototype.</strong> Not legal, zoning,
-          financial, engineering, or permitting advice. Need for joined
-          Pittsburgh neighborhoods uses ACS 2019–23 (UCSUR/WPRDC). Fit, Allowed,
-          match colors, and outside-city values remain illustrative fixtures.
-          Verify authoritative sources and engage affected communities before
-          acting.
+          financial, engineering, or permitting advice. Need for in-city
+          places that join a WPRDC hood name uses ACS 2019–23 (UCSUR/WPRDC).
+          Fit, Allowed, match colors, parcel counts, and outside-city scores
+          remain illustrative fixtures. Verify authoritative sources and
+          engage affected communities before acting.
         </p>
       </main>
 

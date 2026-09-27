@@ -16,6 +16,7 @@ interface ToolbarProps {
   onModeChange: (mode: MapMode) => void
   is3d: boolean
   onDimensionChange: (is3d: boolean) => void
+  compareTypes?: readonly Option[]
 }
 
 export function Toolbar({
@@ -29,6 +30,7 @@ export function Toolbar({
   onModeChange,
   is3d,
   onDimensionChange,
+  compareTypes,
 }: ToolbarProps) {
   return (
     <div className="toolbar" aria-label="Map controls">
@@ -60,6 +62,20 @@ export function Toolbar({
           ))}
         </select>
       </div>
+      {compareTypes && compareTypes.length > 0 ? (
+        <div className="segmented" aria-label="Demo housing types">
+          {compareTypes.map((option) => (
+            <button
+              key={option.value}
+              className={type === option.value ? 'active' : ''}
+              type="button"
+              onClick={() => onTypeChange(option.value)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
       <div className="segmented" aria-label="Map view">
         <button
           className={mode === 'match' ? 'active' : ''}

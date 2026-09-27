@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ILLUSTRATIVE_HEXES } from '../data/fixtures'
+import { attachObservedNeed } from '../data/observedNeed'
 import { buildGroundedAnswer } from './answers'
 import { retrieveKnowledge } from './retrieval'
 
@@ -11,6 +12,7 @@ describe('retrieveKnowledge', () => {
     ['What floodway, slope, and undermining hazards matter?', 'climate-hazards'],
     ['What should a planner verify next with residents?', 'human-next-steps'],
     ['What ACS vintage is the Homewood need from UCSUR WPRDC?', 'acs-need-vintage'],
+    ['Can this tool act as a zoning lawyer or invent numbers?', 'not-a-zoning-lawyer'],
   ])('ranks the relevant source first for "%s"', (query, expectedId) => {
     expect(retrieveKnowledge(query)[0]?.snippet.id).toBe(expectedId)
   })
@@ -47,7 +49,7 @@ describe('buildGroundedAnswer', () => {
     expect(answer.citations.some(({ label }) => label.includes('zoning'))).toBe(
       true,
     )
-    expect(answer.sections[0]?.text).toContain('fixture values')
+    expect(answer.sections[0]?.text).toContain('These are fixture values')
     expect(answer.sections[0]?.text).toContain('needs approval')
     expect(
       answer.sections.every(
@@ -56,6 +58,25 @@ describe('buildGroundedAnswer', () => {
           sectionCitationIds.every((id) => citationIds.has(id)),
       ),
     ).toBe(true)
+  })
+
+  it('names ACS vintage when the selected place has observed Need', () => {
+    const homewood = attachObservedNeed(
+      ILLUSTRATIVE_HEXES.find((hex) => hex.neighborhood === 'Homewood South')!,
+    )
+    const answer = buildGroundedAnswer({
+      query: 'What ACS vintage is the Homewood need from UCSUR WPRDC?',
+      selectedHex: homewood,
+      selectedType: 'adu',
+    })
+
+    expect(answer.sections[0]?.text).toContain('ACS 2019')
+    expect(answer.sections[0]?.text).toContain(
+      'Fit and Allowed remain fixture values',
+    )
+    expect(answer.citations.some(({ id }) => id === 'acs-need-vintage')).toBe(
+      true,
+    )
   })
 
   it('returns a transparent no-result state without unsupported citations', () => {

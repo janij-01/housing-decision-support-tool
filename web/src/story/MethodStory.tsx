@@ -12,21 +12,21 @@ const DIMENSIONS = [
     name: 'Need',
     prompt: 'What is missing?',
     detail: 'Household patterns and today’s housing supply reveal the gap.',
-    source: 'Observed + derived',
+    source: 'ACS 2019–23 where a WPRDC hood joins; else fixture',
   },
   {
     number: '02',
     name: 'Fit',
     prompt: 'Where could it work?',
     detail: 'Parcel conditions estimate physical capacity and constraints.',
-    source: 'Observed + modeled',
+    source: 'Illustrative recipe in this MVP',
   },
   {
     number: '03',
     name: 'Allowed',
     prompt: 'What do the rules permit?',
     detail: 'Verified zoning determines the current legal path.',
-    source: 'Law + verification',
+    source: 'Illustrative / unverified in this MVP',
   },
 ] as const
 

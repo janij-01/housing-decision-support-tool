@@ -12,7 +12,7 @@ export const COPILOT_KNOWLEDGE: readonly KnowledgeSnippet[] = [
     label: 'Fixture data notice',
     title: 'Illustrative data, not findings',
     text:
-      'The current map uses a small set of plausible, illustrative Pittsburgh-area fixture records. Demographic, parcel, zoning, hazard, transit, and carbon values are not authoritative findings and must not be used for planning or zoning decisions.',
+      'Fit parcel counts, Allowed zoning labels, match colors, hazards, transit, carbon, and outside-city scores are still illustrative fixtures. They are not authoritative findings and must not be used for planning or zoning decisions. In-city Need is different: Pittsburgh neighborhoods that join a WPRDC hood name use ACS 2019–2023 (UCSUR / WPRDC), with large margins of error in small places.',
     keywords: [
       'fixture',
       'sample',
@@ -116,7 +116,7 @@ export const COPILOT_KNOWLEDGE: readonly KnowledgeSnippet[] = [
     label: 'Source: ACS neighborhood need',
     title: 'Homewood Need is ACS, not a model guess',
     text:
-      'For Pittsburgh neighborhoods that join on WPRDC hood names, Need bands are derived from UCSUR ACS 2019–2023 via WPRDC: living-alone share, vacancy, age 65+, family households, tenure, and transit commute. Small neighborhoods have large margins of error. Fit parcel counts and Allowed zoning labels stay illustrative until a parcel file and a human-verified zoning matrix are connected. An LLM must not invent those numbers or interpret Title 9.',
+      'For Pittsburgh neighborhoods that join on WPRDC hood names, Need bands are derived from UCSUR ACS 2019–2023 via WPRDC: living-alone share, vacancy, age 65+, family households, tenure, and transit commute. Small neighborhoods have large margins of error. Fit parcel counts and Allowed zoning labels stay illustrative until a parcel file and a human-verified zoning matrix are connected. An LLM must not invent those numbers or interpret Title 9. This preview only retrieves local notes; it does not recommend a project.',
     keywords: [
       'acs',
       'census',
@@ -130,6 +130,23 @@ export const COPILOT_KNOWLEDGE: readonly KnowledgeSnippet[] = [
       'moe',
       'error',
       'limitation',
+    ],
+  },
+  {
+    id: 'not-a-zoning-lawyer',
+    label: 'Limit: not legal advice',
+    title: 'This preview is not a zoning lawyer',
+    text:
+      'Do not treat answers as legal advice, a Title 9 determination, or a reason to build. Future LLM answers may use only the selected place snapshot and already-cited ordinance text. Missing parcel counts, missing code sections, and missing FEMA calls stay missing. The tool must not invent numbers.',
+    keywords: [
+      'lawyer',
+      'attorney',
+      'llm',
+      'invent',
+      'hallucinate',
+      'title9',
+      'advice',
+      'legal',
     ],
   },
   {
@@ -153,6 +170,7 @@ export const COPILOT_KNOWLEDGE: readonly KnowledgeSnippet[] = [
 export const SUGGESTED_PROMPTS = [
   'How should I read Need, Fit, and Allowed?',
   'What ACS vintage is the Homewood need?',
+  'Can this tool act as a zoning lawyer?',
   'What zoning checks are still required?',
   'Which climate and hazard limits matter here?',
   'What should a planner verify next?',
