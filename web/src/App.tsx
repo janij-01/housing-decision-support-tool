@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ILLUSTRATIVE_HEXES } from './data/fixtures'
+import { attachObservedNeed } from './data/observedNeed'
 import { TYPE_IDS, type HexRecord, type TypeId } from './data/types'
 import { PlanningCopilot } from './copilot/PlanningCopilot'
 import { Legend } from './map/Legend'
@@ -13,6 +14,7 @@ import {
 } from './model/scenarios'
 import {
   PlaceReport,
+  ScreeningBrief,
   type HousingTypeRow,
 } from './panels/PlaceReport'
 import {
@@ -118,7 +120,11 @@ function scenarioCards(weights: ValueWeights): ScenarioScorecard[] {
 
 function App() {
   const cells = useMemo<ViewCell[]>(
-    () => ILLUSTRATIVE_HEXES.map((cell) => ({ ...cell, name: cellName(cell) })),
+    () =>
+      ILLUSTRATIVE_HEXES.map((cell) => {
+        const withNeed = attachObservedNeed(cell)
+        return { ...withNeed, name: cellName(withNeed) }
+      }),
     [],
   )
   const params = useMemo(() => new URLSearchParams(window.location.search), [])
@@ -187,7 +193,9 @@ function App() {
     (cell: ViewCell) => {
       const status = statusFor(cell, selectedType)
       const fit = cell.fit[selectedType]
-      return `${TYPE_LABELS[selectedType]}: ${STATUS_LABELS[status]}. ${fit.parcels} illustrative suitable parcels.\nClick to see why.`
+      return `${TYPE_LABELS[selectedType]}: ${STATUS_LABELS[status]}. Need ${
+        cell.observedNeed ? 'from ACS 2019–23' : 'is illustrative'
+      }. Fit recipe: about ${fit.parcels} parcels, ${fit.homes[0]}–${fit.homes[1]} homes.\nClick to see why.`
     },
     [selectedType],
   )
@@ -216,6 +224,11 @@ function App() {
       'Parcel ownership and willingness to sell are unknown.',
       'Household preferences require community engagement.',
     ]
+    if (selected.observedNeed) {
+      items.unshift(
+        `Need uses ${selected.observedNeed.vintage}; ACS groups ${selected.observedNeed.groupedHoods.join(', ')}.`,
+      )
+    }
     if (!selected.inCity) {
       items.unshift(
         `Zoning for ${selected.muni} has not been loaded or human-verified.`,
@@ -271,7 +284,9 @@ function App() {
           <button className="share-button" type="button" onClick={copyViewLink}>
             {copied ? 'Link copied' : 'Share this view'}
           </button>
-          <span className="prototype-pill">Local MVP · Fixture data</span>
+          <span className="prototype-pill">
+            Need: ACS 2019–23 · Fit/Allowed: fixture
+          </span>
         </div>
       </header>
 
@@ -341,14 +356,25 @@ function App() {
               name={selected.name}
               municipality={selected.muni}
               confidence={selected.confidence}
-              householdSmall={selected.households.hh_1_2 ?? 0}
-              stockSmall={selected.stock.br_0_1 ?? 0}
               selectedTypeLabel={TYPE_LABELS[selectedType]}
               rows={rows}
               unknowns={unknowns}
+              cell={selected}
             />
           </aside>
         </div>
+
+        <ScreeningBrief
+          placeName={selected.name}
+          municipality={selected.muni}
+          typeLabel={TYPE_LABELS[selectedType]}
+          need={selected.need[selectedType]}
+          fit={selected.fit[selectedType].band}
+          allowed={selected.allowed[selectedType]}
+          status={statusFor(selected, selectedType)}
+          hasAcsNeed={Boolean(selected.observedNeed)}
+          catalogName={selected.observedNeed?.catalogName}
+        />
 
         <ScenarioBuilder
           placeName={selected.name}
@@ -361,8 +387,9 @@ function App() {
 
         <p className="disclaimer">
           <strong>Decision-support prototype.</strong> Not legal, zoning,
-          financial, engineering, or permitting advice. All values currently
-          shown are illustrative fixtures for testing the product workflow.
+          financial, engineering, or permitting advice. Need for joined
+          Pittsburgh neighborhoods uses ACS 2019–23 (UCSUR/WPRDC). Fit, Allowed,
+          match colors, and outside-city values remain illustrative fixtures.
           Verify authoritative sources and engage affected communities before
           acting.
         </p>

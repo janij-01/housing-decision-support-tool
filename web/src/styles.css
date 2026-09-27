@@ -1062,3 +1062,68 @@ input:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+.metric-vintage {
+  margin: 4px 0 10px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.provenance.assumption {
+  color: #6b5340;
+  background: #f4e6d4;
+}
+
+.screening-brief {
+  margin-top: 18px;
+  padding: 16px 18px;
+  background: #fff;
+  border: 1px solid var(--line, #d9ded7);
+  border-radius: 14px;
+}
+
+.brief-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px 16px;
+  margin: 12px 0;
+}
+
+.brief-facts dt {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.brief-facts dd {
+  margin: 2px 0 0;
+  font-size: 14px;
+}
+
+.brief-limits {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.fixture-banner {
+  max-width: 280px;
+}
+
+@media print {
+  .topbar-actions,
+  .map-panel,
+  .copilot-button,
+  .copilot-backdrop,
+  .scenario-builder,
+  .method-story {
+    display: none !important;
+  }
+
+  .screening-brief {
+    break-inside: avoid;
+  }
+}
+

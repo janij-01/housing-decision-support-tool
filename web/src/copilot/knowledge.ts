@@ -111,10 +111,48 @@ export const COPILOT_KNOWLEDGE: readonly KnowledgeSnippet[] = [
       'recommendation',
     ],
   },
+  {
+    id: 'acs-need-vintage',
+    label: 'Source: ACS neighborhood need',
+    title: 'Homewood Need is ACS, not a model guess',
+    text:
+      'For Pittsburgh neighborhoods that join on WPRDC hood names, Need bands are derived from UCSUR ACS 2019–2023 via WPRDC: living-alone share, vacancy, age 65+, family households, tenure, and transit commute. Small neighborhoods have large margins of error. Fit parcel counts and Allowed zoning labels stay illustrative until a parcel file and a human-verified zoning matrix are connected. An LLM must not invent those numbers or interpret Title 9.',
+    keywords: [
+      'acs',
+      'census',
+      'ucsur',
+      'wprdc',
+      'vintage',
+      'living',
+      'alone',
+      'vacancy',
+      'homewood',
+      'moe',
+      'error',
+      'limitation',
+    ],
+  },
+  {
+    id: 'snap-hazard-vintage',
+    label: 'Source: SNAP 2010 hazards',
+    title: 'Hazard shares are neighborhood SNAP 2010',
+    text:
+      'Flood, landslide, hillside, and undermining percentages in the broader catalog are Pittsburgh SNAP 2010 neighborhood figures, not parcel FEMA determinations. Missing slope or mine values mean unknown, not safe. Do not treat a map color as an engineering conclusion.',
+    keywords: [
+      'snap',
+      '2010',
+      'landslide',
+      'hillside',
+      'undermining',
+      'mine',
+      'fema',
+    ],
+  },
 ] as const
 
 export const SUGGESTED_PROMPTS = [
   'How should I read Need, Fit, and Allowed?',
+  'What ACS vintage is the Homewood need?',
   'What zoning checks are still required?',
   'Which climate and hazard limits matter here?',
   'What should a planner verify next?',

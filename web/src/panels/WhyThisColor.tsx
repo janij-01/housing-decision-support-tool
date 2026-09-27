@@ -122,9 +122,23 @@ function checkMetrics(
     case 'floodway':
       return [`Share of area in a flood zone: ${pct(cell.risk.floodShare)}`]
     case 'need': {
+      const observed = cell.observedNeed
+      if (observed) {
+        const metrics = [
+          `Households living alone: ${pct(observed.livingAlone)} (${observed.vintage}, observed)`,
+          `Vacant housing units: ${pct(observed.vacancy)} (${observed.vintage}, observed)`,
+        ]
+        if (type === 'senior_accessible') {
+          metrics.push(`Residents 65+: ${pct(observed.age65)} (ACS, observed)`)
+        }
+        if (observed.groupedHoods.length > 1) {
+          metrics.push(`ACS groups ${observed.groupedHoods.join(' and ')}`)
+        }
+        return metrics
+      }
       const metrics = [
-        `1–2 person households ${pct(cell.households.hh_1_2)} vs. 0–1 bedroom homes ${pct(cell.stock.br_0_1)}`,
-        `Cost-burdened renters: ${pct(cell.households.cost_burdened_renters)}`,
+        `1–2 person households ${pct(cell.households.hh_1_2)} vs. 0–1 bedroom homes ${pct(cell.stock.br_0_1)} (illustrative fixture)`,
+        `Cost-burdened renters: ${pct(cell.households.cost_burdened_renters)} (illustrative fixture)`,
       ]
       if (type === 'senior_accessible') {
         metrics.push(`Seniors living alone: ${pct(cell.households.senior_alone)}`)
@@ -144,7 +158,7 @@ function checkMetrics(
     case 'fit': {
       const fit = cell.fit[type]
       return [
-        `${fit.parcels} suitable parcels · ${fit.homes[0]}–${fit.homes[1]} homes possible`,
+        `${fit.parcels} suitable parcels · ${fit.homes[0]}–${fit.homes[1]} homes possible (illustrative fit recipe)`,
         `Steep slopes: ${pct(cell.risk.slopeShare)} · Undermined land: ${pct(cell.risk.undermined)}`,
       ]
     }

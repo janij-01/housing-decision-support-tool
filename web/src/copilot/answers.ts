@@ -74,7 +74,7 @@ export function buildGroundedAnswer({
         {
           heading: 'Try a planning topic',
           text:
-            'This local preview could not connect that question to its small knowledge corpus. Ask about the fixture data, Need · Fit · Allowed, zoning, hazards, or human review.',
+            'This local preview could not connect that question to its small knowledge corpus. Ask about ACS vintage, Need · Fit · Allowed, zoning, hazards, or human review.',
           citationIds: [],
         },
       ],
@@ -91,7 +91,11 @@ export function buildGroundedAnswer({
     label: `Selected fixture: ${place} (${selectedHex.h3})`,
   }
   const selectedFacts = [
-    `${TYPE_LABELS[selectedType]} is shown with ${display(selectedHex.need[selectedType])} need`,
+    `${TYPE_LABELS[selectedType]} is shown with ${display(selectedHex.need[selectedType])} need${
+      selectedHex.observedNeed
+        ? ` from ${selectedHex.observedNeed.vintage}`
+        : ''
+    }`,
     `${display(fit.band)} fit across ${fit.parcels} illustrative parcels`,
     `an illustrative range of ${fit.homes[0]}–${fit.homes[1]} homes`,
     `and zoning marked ${display(selectedHex.allowed[selectedType])}`,
@@ -100,6 +104,10 @@ export function buildGroundedAnswer({
   if (matchStatus) {
     selectedFacts.push(`The current match status is ${display(matchStatus)}`)
   }
+
+  const needClause = selectedHex.observedNeed
+    ? 'Need bands for this place are derived from ACS 2019–23. Fit and Allowed remain fixture values, not verified findings.'
+    : 'These are fixture values, not verified findings.'
 
   const knowledgeCitations = retrieved.map(({ snippet }) => ({
     id: snippet.id,
@@ -117,7 +125,7 @@ export function buildGroundedAnswer({
     sections: [
       {
         heading: 'Selected map context',
-        text: `${selectedFacts.join(', ')}. These are fixture values, not verified findings.`,
+        text: `${selectedFacts.join(', ')}. ${needClause}`,
         citationIds: [selectedCitation.id],
       },
       ...knowledgeSections,

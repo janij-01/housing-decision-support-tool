@@ -16,6 +16,7 @@ export interface MapDatum {
   name: string
   muni: string
   tract: string
+  hoodAliases?: readonly string[]
 }
 
 interface MapViewProps<T extends MapDatum> {
@@ -103,15 +104,17 @@ export function MapView<T extends MapDatum>({
     () => new Map(cells.map((cell) => [cell.h3, cell])),
     [cells],
   )
-  const cellsByNeighborhood = useMemo(
-    () =>
-      new Map(
-        cells
-          .filter((cell) => cell.muni === 'Pittsburgh')
-          .map((cell) => [cell.name.toLowerCase(), cell]),
-      ),
-    [cells],
-  )
+  const cellsByNeighborhood = useMemo(() => {
+    const byHood = new Map<string, T>()
+    for (const cell of cells) {
+      if (cell.muni !== 'Pittsburgh') continue
+      byHood.set(cell.name.toLowerCase(), cell)
+      for (const alias of cell.hoodAliases ?? []) {
+        byHood.set(alias.toLowerCase(), cell)
+      }
+    }
+    return byHood
+  }, [cells])
   const cellsByTract = useMemo(
     () => new Map(cells.map((cell) => [cell.tract, cell])),
     [cells],
@@ -318,7 +321,10 @@ export function MapView<T extends MapDatum>({
         </span>
       </div>
       <div className="map-help">Drag to move · Scroll to zoom · Shift-drag to rotate</div>
-      <div className="fixture-banner">Scores and detailed geometry are illustrative</div>
+      <div className="fixture-banner">
+        Need: ACS 2019–23 (UCSUR/WPRDC). Fit, Allowed, and outside-city scores
+        are illustrative.
+      </div>
       {basemapError ? (
         <div className="map-error" role="alert">
           Street tiles could not load. Check your connection and refresh.

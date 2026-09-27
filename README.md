@@ -31,7 +31,7 @@ npm run build
 
 ## Current MVP status
 
-The first local MVP uses **illustrative fixture data** around Homewood, Wilkinsburg, and nearby Pittsburgh neighborhoods to validate the user experience and deterministic scoring model. It is not yet suitable for real planning decisions. The next data work replaces fixtures with ACS/CHAS household data, county parcel and assessment aggregates, hazard layers, and a human-verified Pittsburgh zoning matrix.
+The first local MVP uses **ACS 2019–23 Need** (UCSUR / WPRDC neighborhood profiles) for Homewood and other in-city places that match a WPRDC hood name. Fit, Allowed, match colors, and outside-city scores remain **illustrative fixtures**. Homewood North and Homewood West share the UCSUR “Homewood North - Homewood West” group. Wilkinsburg hex fills are still placeholders. The next data work replaces Fit/Allowed fixtures with county parcels and a human-verified Pittsburgh zoning matrix.
 
 The interface includes a **Grounded Preview** of the planned RAG planning copilot. Today it uses deterministic lexical retrieval, templates, and citations over a small local corpus—no LLM, embeddings, or vector database. The future hosted RAG architecture is documented separately and will preserve the same citation and refusal contract.
 

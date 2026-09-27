@@ -10,6 +10,7 @@ describe('retrieveKnowledge', () => {
     ['Can I build this by right under current zoning?', 'zoning-verification'],
     ['What floodway, slope, and undermining hazards matter?', 'climate-hazards'],
     ['What should a planner verify next with residents?', 'human-next-steps'],
+    ['What ACS vintage is the Homewood need from UCSUR WPRDC?', 'acs-need-vintage'],
   ])('ranks the relevant source first for "%s"', (query, expectedId) => {
     expect(retrieveKnowledge(query)[0]?.snippet.id).toBe(expectedId)
   })

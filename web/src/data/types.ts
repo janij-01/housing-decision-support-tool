@@ -43,6 +43,18 @@ export interface FitResult {
   homes: [number, number]
 }
 
+export interface ObservedNeed {
+  catalogName: string
+  vintage: string
+  livingAlone: number
+  vacancy: number
+  age65: number
+  familyHh: number
+  share1to2: number | null
+  totParcels: number | null
+  groupedHoods: readonly string[]
+}
+
 export interface HexRecord {
   h3: string
   muni: string
@@ -67,6 +79,8 @@ export interface HexRecord {
   }
   transitTrips800m: number
   confidence: number
+  observedNeed?: ObservedNeed
+  hoodAliases?: readonly string[]
 }
 
 export interface ZoningRule {
